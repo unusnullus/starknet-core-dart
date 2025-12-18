@@ -1,0 +1,23 @@
+name: starknet_core
+description: Forked versions of the latest starknet and starknet_provider Dart packages.
+version: 1.0.0
+repository: https://github.com/unusnullus/starknet-core-dart
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  bip32: 2.0.0
+  bip39: 1.0.6
+  crypto: 3.0.7
+  freezed_annotation: 2.4.4
+  http: 1.2.2
+  json_annotation: 4.9.0
+  pointycastle: 3.9.1
+  web_socket_channel: 2.4.0
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  json_serializable: ^6.8.0
+  build_runner: ^2.4.13
+  freezed: 2.5.2
