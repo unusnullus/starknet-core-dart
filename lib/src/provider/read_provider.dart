@@ -1,4 +1,3 @@
-
 import '../core/starknet.dart';
 import 'call_rpc_endpoint.dart';
 import 'model/index.dart';
@@ -129,8 +128,7 @@ abstract class ReadProvider {
   /// Estimate the fee for a given message from L1 to L2.
   ///
   /// [Spec](https://github.com/starkware-libs/starknet-specs/blob/v0.8.1/api/starknet_api_openrpc.json#L673)
-  Future<EstimateMessageFee> estimateMessageFee(
-      EstimateMessageFeeRequest request);
+  Future<EstimateMessageFee> estimateMessageFee(EstimateMessageFeeRequest request);
 
   /// Gets the status of L1 to L2 messages.
   ///
@@ -167,15 +165,12 @@ class JsonRpcReadProvider implements ReadProvider {
 
   @override
   Future<BlockNumber> blockNumber() async {
-    return callRpcEndpoint(nodeUri: nodeUri, method: 'starknet_blockNumber')
-        .then(BlockNumber.fromJson);
+    return callRpcEndpoint(nodeUri: nodeUri, method: 'starknet_blockNumber').then(BlockNumber.fromJson);
   }
 
   @override
   Future<BlockHashAndNumber> blockHashAndNumber() async {
-    return callRpcEndpoint(
-            nodeUri: nodeUri, method: 'starknet_blockHashAndNumber')
-        .then(BlockHashAndNumber.fromJson);
+    return callRpcEndpoint(nodeUri: nodeUri, method: 'starknet_blockHashAndNumber').then(BlockHashAndNumber.fromJson);
   }
 
   @override
@@ -210,10 +205,7 @@ class JsonRpcReadProvider implements ReadProvider {
     required FunctionCall request,
     required BlockId blockId,
   }) async {
-    return callRpcEndpoint(
-        nodeUri: nodeUri,
-        method: 'starknet_call',
-        params: [request, blockId]).then(Call.fromJson);
+    return callRpcEndpoint(nodeUri: nodeUri, method: 'starknet_call', params: [request, blockId]).then(Call.fromJson);
   }
 
   @override
@@ -239,8 +231,7 @@ class JsonRpcReadProvider implements ReadProvider {
   }
 
   @override
-  Future<GetTransaction> getTransactionByBlockIdAndIndex(
-      BlockId blockId, int index) {
+  Future<GetTransaction> getTransactionByBlockIdAndIndex(BlockId blockId, int index) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
       method: 'starknet_getTransactionByBlockIdAndIndex',
@@ -361,8 +352,7 @@ class JsonRpcReadProvider implements ReadProvider {
   }
 
   @override
-  Future<EstimateMessageFee> estimateMessageFee(
-      EstimateMessageFeeRequest request) {
+  Future<EstimateMessageFee> estimateMessageFee(EstimateMessageFeeRequest request) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
       method: 'starknet_estimateMessageFee',
@@ -371,8 +361,7 @@ class JsonRpcReadProvider implements ReadProvider {
   }
 
   @override
-  Future<GetMessagesStatus> getMessagesStatus(
-      GetMessagesStatusRequest request) {
+  Future<GetMessagesStatus> getMessagesStatus(GetMessagesStatusRequest request) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
       method: 'starknet_getMessagesStatus',
@@ -409,8 +398,7 @@ class JsonRpcReadProvider implements ReadProvider {
   }
 
   @override
-  Future<GetTransactionStatus> getTransactionStatus(
-      Felt transactionHash) async {
+  Future<GetTransactionStatus> getTransactionStatus(Felt transactionHash) async {
     final response = await callRpcEndpoint(
       nodeUri: nodeUri,
       method: 'starknet_getTransactionStatus',
@@ -418,14 +406,4 @@ class JsonRpcReadProvider implements ReadProvider {
     );
     return GetTransactionStatus.fromJson(response);
   }
-
-  static final devnet = JsonRpcReadProvider(nodeUri: devnetUri);
-
-  static final v010PathfinderGoerliTestnet =
-      JsonRpcReadProvider(nodeUri: v010PathfinderGoerliTestnetUri);
-
-  static final infuraGoerliTestnet =
-      JsonRpcReadProvider(nodeUri: infuraGoerliTestnetUri);
-
-  static final infuraMainnet = JsonRpcReadProvider(nodeUri: infuraMainnetUri);
 }

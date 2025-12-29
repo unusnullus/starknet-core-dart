@@ -1,4 +1,3 @@
-
 import '../core/starknet.dart';
 import 'call_rpc_endpoint.dart';
 import 'model/index.dart';
@@ -12,8 +11,7 @@ abstract class TraceProvider {
   /// Simulates transactions.
   ///
   /// [Spec](https://github.com/starkware-libs/starknet-specs/blob/3f6226cfe50778555273c49d5c3563b38bd6928e/api/starknet_trace_api_openrpc.json#L41-L106)
-  Future<SimulateTransactions> simulateTransactions(
-      SimulateTransactionsRequest request);
+  Future<SimulateTransactions> simulateTransactions(SimulateTransactionsRequest request);
 
   /// Traces all transactions in a block.
   ///
@@ -38,8 +36,7 @@ class JsonRpcTraceProvider implements TraceProvider {
   }
 
   @override
-  Future<SimulateTransactions> simulateTransactions(
-      SimulateTransactionsRequest request) {
+  Future<SimulateTransactions> simulateTransactions(SimulateTransactionsRequest request) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
       method: 'starknet_simulateTransactions',
@@ -55,6 +52,4 @@ class JsonRpcTraceProvider implements TraceProvider {
       params: [blockId],
     ).then(GetBlockTransactionTraces.fromJson);
   }
-
-  static final devnet = JsonRpcTraceProvider(nodeUri: devnetUri);
 }
