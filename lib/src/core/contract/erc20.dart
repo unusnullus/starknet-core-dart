@@ -56,13 +56,13 @@ class ERC20 extends Contract {
   ///
   /// Returns transaction hash.
   Future<String> transfer({
-    required Felt recipient,
+    required Felt recipientAddress,
     required Uint256 amount,
     Felt? tip,
     EstimatedTransactionFee? estimatedFee,
   }) async {
     final List<FunctionCall> functionCalls = getTransferFunctionCalls(
-      recipient: recipient,
+      recipientAddress: recipientAddress,
       amount: amount,
     );
 
@@ -137,11 +137,11 @@ class ERC20 extends Contract {
   }
 
   List<FunctionCall> getTransferFunctionCalls({
-    required Felt recipient,
+    required Felt recipientAddress,
     required Uint256 amount,
   }) {
     return [
-      getFunctionCall(selector: 'transfer', calldata: [recipient, amount.low, amount.high]),
+      getFunctionCall(selector: 'transfer', calldata: [recipientAddress, amount.low, amount.high]),
     ];
   }
 
