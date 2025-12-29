@@ -1,6 +1,8 @@
 // Generated code, do not modify. Run `build_runner build` to re-generate!
 // ignore_for_file: unused_element
 
+import 'package:starknet_core/src/core/fee/estimated_transaction_fee.dart';
+import 'package:starknet_core/src/provider/model/function_call.dart';
 
 import '../contract/index.dart';
 import '../core/index.dart';
@@ -11,49 +13,34 @@ class Udc extends Contract {
     required super.address,
   });
 
-  Future<String> deployContract(
-    Felt classHash,
-    Felt salt,
-    Felt unique,
-    List<Felt> calldata,
-    Felt? l1GasConsumed,
-    Felt? l1GasPrice,
-    Felt? l1DataGasConsumed,
-    Felt? l1DataGasPrice,
-    Felt? l2GasConsumed,
-    Felt? l2GasPrice,
-    List<Felt>? accountDeploymentData,
-    List<Felt>? paymasterData,
-    Felt? tip,
-    String? feeDataAvailabilityMode,
-    String? nonceDataAvailabilityMode,
-  ) async {
-    final List<Felt> params = [
-      classHash,
-      salt,
-      unique,
-      ...calldata.toCallData(),
-    ];
+  Future<String> deployContract({
+    required Felt classHash,
+    required Felt salt,
+    required Felt unique,
+    required List<Felt> calldata,
+    required Felt? tip,
+    required EstimatedTransactionFee? estimatedFee,
+  }) async {
     final trx = await execute(
-      selector: 'deployContract',
-      calldata: params,
-      l1GasConsumed: l1GasConsumed,
-      l1GasPrice: l1GasPrice,
-      l1DataGasConsumed: l1DataGasConsumed,
-      l1DataGasPrice: l1DataGasPrice,
-      l2GasConsumed: l2GasConsumed,
-      l2GasPrice: l2GasPrice,
-      accountDeploymentData: accountDeploymentData,
-      paymasterData: paymasterData,
+      functionCalls: [
+        FunctionCall(
+          contractAddress: address,
+          entryPointSelector: getSelectorByName("deployContract"),
+          calldata: [
+            classHash,
+            salt,
+            unique,
+            ...calldata.toCallData(),
+          ],
+        ),
+      ],
       tip: tip,
-      feeDataAvailabilityMode: feeDataAvailabilityMode,
-      nonceDataAvailabilityMode: nonceDataAvailabilityMode,
+      estimatedFee: estimatedFee,
     );
-    final trxHash = trx.when(
+    return trx.when(
       result: (result) => result.transaction_hash,
       error: (error) => throw Exception,
     );
-    return trxHash;
   }
 }
 

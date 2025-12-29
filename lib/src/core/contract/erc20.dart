@@ -1,7 +1,7 @@
+import 'package:starknet_core/src/core/fee/estimated_transaction_fee.dart';
 
 import '../../provider/starknet_provider.dart';
 import '../core/types/index.dart';
-import '../core/crypto/keccak.dart';
 import 'contract.dart';
 
 class ERC20 extends Contract {
@@ -55,31 +55,27 @@ class ERC20 extends Contract {
   /// Moves `amount` tokens from the caller’s account to `recipient`.
   ///
   /// Returns transaction hash.
-  Future<String> transfer(Felt recipient, Uint256 value) async {
-    final maxFee = await account.getEstimateMaxFeeForInvokeTx(
-      functionCalls: [
-        FunctionCall(
-          contractAddress: address,
-          entryPointSelector: getSelectorByName("transfer"),
-          calldata: [recipient, value.low, value.high],
-        ),
-      ],
+  Future<String> transfer({
+    required Felt recipientAddress,
+    required Uint256 amount,
+    Felt? tip,
+    EstimatedTransactionFee? estimatedFee,
+  }) async {
+    final List<FunctionCall> functionCalls = getTransferFunctionCalls(
+      recipientAddress: recipientAddress,
+      amount: amount,
     );
+
+    estimatedFee ??= await account.estimateFeeForInvokeTx(functionCalls: functionCalls, tip: tip);
+
     final InvokeTransactionResponse trx = await execute(
-      selector: "transfer",
-      calldata: [recipient, value.low, value.high],
-      l1GasConsumed: maxFee.l1GasConsumed,
-      l1GasPrice: maxFee.l1GasPrice,
-      l2GasConsumed: maxFee.l2GasConsumed,
-      l2GasPrice: maxFee.l2GasPrice,
-      l1DataGasConsumed: maxFee.l1DataGasConsumed,
-      l1DataGasPrice: maxFee.l1DataGasPrice,
+      functionCalls: functionCalls,
+      tip: tip,
+      estimatedFee: estimatedFee,
     );
     return trx.when(
       result: (result) => result.transaction_hash,
-      error: (error) {
-        throw Exception("Error transfer (${error.code}): ${error.message}");
-      },
+      error: (error) => throw Exception(error.message),
     );
   }
 
@@ -87,66 +83,84 @@ class ERC20 extends Contract {
   /// amount is then deducted from the caller’s allowance.
   ///
   /// Returns transaction hash.
-  Future<String> transferFrom(Felt from, Felt to, Uint256 value) async {
-    final maxFee = await account.getEstimateMaxFeeForInvokeTx(
-      functionCalls: [
-        FunctionCall(
-          contractAddress: address,
-          entryPointSelector: getSelectorByName("transferFrom"),
-          calldata: [from, to, value.low, value.high],
-        ),
-      ],
+  Future<String> transferFrom({
+    required Felt fromAddress,
+    required Felt toAddress,
+    required Uint256 amount,
+    Felt? tip,
+    EstimatedTransactionFee? estimatedFee,
+  }) async {
+    final List<FunctionCall> functionCalls = getTransferFromFunctionCalls(
+      fromAddress: fromAddress,
+      toAddress: toAddress,
+      amount: amount,
     );
+
+    estimatedFee ??= await account.estimateFeeForInvokeTx(functionCalls: functionCalls, tip: tip);
+
     final InvokeTransactionResponse trx = await execute(
-      selector: "transferFrom",
-      calldata: [from, to, value.low, value.high],
-      l1GasConsumed: maxFee.l1GasConsumed,
-      l1GasPrice: maxFee.l1GasPrice,
-      l2GasConsumed: maxFee.l2GasConsumed,
-      l2GasPrice: maxFee.l2GasPrice,
-      l1DataGasConsumed: maxFee.l1DataGasConsumed,
-      l1DataGasPrice: maxFee.l1DataGasPrice,
+      functionCalls: functionCalls,
+      tip: tip,
+      estimatedFee: estimatedFee,
     );
-    return (trx.when(
-      result: (result) {
-        return result.transaction_hash;
-      },
-      error: (error) {
-        throw Exception("Error transferFrom (${error.code}): ${error.message}");
-      },
-    ));
+    return trx.when(
+      result: (result) => result.transaction_hash,
+      error: (error) => throw Exception(error.message),
+    );
   }
 
   /// Sets `amount` as the allowance of `spender` over the caller’s tokens.
   ///
   /// Returns transaction hash.
-  Future<String> approve(Felt spender, Uint256 amount) async {
-    final maxFee = await account.getEstimateMaxFeeForInvokeTx(
-      functionCalls: [
-        FunctionCall(
-          contractAddress: address,
-          entryPointSelector: getSelectorByName("approve"),
-          calldata: [spender, amount.low, amount.high],
-        ),
-      ],
+  Future<String> approve({
+    required Felt spenderAddress,
+    required Uint256 amount,
+    Felt? tip,
+    EstimatedTransactionFee? estimatedFee,
+  }) async {
+    final List<FunctionCall> functionCalls = getApproveFunctionCalls(
+      spenderAddress: spenderAddress,
+      amount: amount,
     );
+
+    estimatedFee ??= await account.estimateFeeForInvokeTx(functionCalls: functionCalls, tip: tip);
+
     final InvokeTransactionResponse trx = await execute(
-      selector: "approve",
-      calldata: [spender, amount.low, amount.high],
-      l1GasConsumed: maxFee.l1GasConsumed,
-      l1GasPrice: maxFee.l1GasPrice,
-      l2GasConsumed: maxFee.l2GasConsumed,
-      l2GasPrice: maxFee.l2GasPrice,
-      l1DataGasConsumed: maxFee.l1DataGasConsumed,
-      l1DataGasPrice: maxFee.l1DataGasPrice,
+      functionCalls: functionCalls,
+      tip: tip,
+      estimatedFee: estimatedFee,
     );
-    return (trx.when(
-      result: (result) {
-        return result.transaction_hash;
-      },
-      error: (error) {
-        throw Exception("Error approve (${error.code}): ${error.message}");
-      },
-    ));
+    return trx.when(
+      result: (result) => result.transaction_hash,
+      error: (error) => throw Exception(error.message),
+    );
+  }
+
+  List<FunctionCall> getTransferFunctionCalls({
+    required Felt recipientAddress,
+    required Uint256 amount,
+  }) {
+    return [
+      getFunctionCall(selector: 'transfer', calldata: [recipientAddress, amount.low, amount.high]),
+    ];
+  }
+
+  List<FunctionCall> getTransferFromFunctionCalls({
+    required Felt fromAddress,
+    required Felt toAddress,
+    required Uint256 amount,
+  }) {
+    return [
+      getFunctionCall(selector: 'transferFrom', calldata: [fromAddress, toAddress, amount.low, amount.high]),
+    ];
+  }
+
+  List<FunctionCall> getApproveFunctionCalls({
+    required Felt spenderAddress,
+    required Uint256 amount,
+  }) {
+    return [
+      getFunctionCall(selector: 'approve', calldata: [spenderAddress, amount.low, amount.high]),
+    ];
   }
 }

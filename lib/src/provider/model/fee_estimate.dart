@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../core/core/index.dart';
-import '../provider.dart';
 import 'components/resource_bounds.dart';
 
 part 'fee_estimate.freezed.dart';
@@ -63,23 +62,4 @@ mixin FeeEstimateMethods_v0_8 implements FeeEstimateMethods {
           maxPricePerUnit: l1DataGasPrice.multiplyByDouble(multiplier),
         ),
       };
-}
-
-extension DefaultResourceBoundsMapping on Provider {
-  Future<Map<String, ResourceBounds>> defaultResourceBoundsMapping() async {
-    return {
-      _L1_GAS: ResourceBounds(
-        maxAmount: Felt.zero,
-        maxPricePerUnit: Felt.zero,
-      ),
-      _L2_GAS: ResourceBounds(
-        maxAmount: Felt.zero,
-        maxPricePerUnit: Felt.zero,
-      ),
-      _L1_DATA_GAS: ResourceBounds(
-        maxAmount: Felt.zero,
-        maxPricePerUnit: Felt.zero,
-      ),
-    };
-  }
 }

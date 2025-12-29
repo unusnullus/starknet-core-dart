@@ -1,3 +1,4 @@
+import 'package:starknet_core/src/core/fee/estimated_transaction_fee.dart';
 
 import '../../provider/starknet_provider.dart';
 import '../account.dart';
@@ -6,6 +7,11 @@ import '../core/index.dart';
 class Contract {
   final Account account;
   final Felt address;
+
+  Contract({
+    required this.account,
+    required this.address,
+  });
 
   /// Compute contract address for given [classHash], [calldata], [salt]
   ///
@@ -22,70 +28,45 @@ class Contract {
     elements.add(deployerAddress);
     elements.add(salt.toBigInt());
     elements.add(classHash.toBigInt());
-    elements
-        .add(computeHashOnElements(calldata.map((e) => e.toBigInt()).toList()));
+    elements.add(computeHashOnElements(calldata.map((e) => e.toBigInt()).toList()));
     final address = computeHashOnElements(elements);
     return Felt(address);
   }
 
-  Contract({required this.account, required this.address});
-
   /// Call contract given [selector] with [calldata]
   Future<List<Felt>> call(String selector, List<Felt> calldata) async {
     final response = await account.provider.call(
-      request: FunctionCall(
-        contractAddress: address,
-        entryPointSelector: getSelectorByName(selector),
-        calldata: calldata,
-      ),
+      request: getFunctionCall(selector: selector, calldata: calldata),
       blockId: BlockId.latest,
     );
     return response.when(
-      error: (error) {
-        throw Exception(error);
-      },
-      result: (result) {
-        return result;
-      },
+      result: (result) => result,
+      error: (error) => throw Exception(error),
     );
   }
 
   /// Execute contract given [selector] with [calldata]
   Future<InvokeTransactionResponse> execute({
+    required List<FunctionCall> functionCalls,
+    Felt? tip,
+    EstimatedTransactionFee? estimatedFee,
+  }) {
+    return account.execute(
+      functionCalls: functionCalls,
+      tip: tip,
+      estimatedFee: estimatedFee,
+    );
+  }
+
+  FunctionCall getFunctionCall({
     required String selector,
     required List<Felt> calldata,
-    Felt? l1GasConsumed,
-    Felt? l1GasPrice,
-    Felt? l1DataGasConsumed,
-    Felt? l1DataGasPrice,
-    Felt? l2GasConsumed,
-    Felt? l2GasPrice,
-    List<Felt>? accountDeploymentData,
-    List<Felt>? paymasterData,
-    Felt? tip,
-    String? feeDataAvailabilityMode,
-    String? nonceDataAvailabilityMode,
-  }) async {
-    final trx = await account.execute(
-      functionCalls: [
-        FunctionCall(
-          contractAddress: address,
-          entryPointSelector: getSelectorByName(selector),
-          calldata: calldata,
-        ),
-      ],
-      l1GasConsumed: l1GasConsumed,
-      l1GasPrice: l1GasPrice,
-      l1DataGasConsumed: l1DataGasConsumed,
-      l1DataGasPrice: l1DataGasPrice,
-      l2GasConsumed: l2GasConsumed,
-      l2GasPrice: l2GasPrice,
-      accountDeploymentData: accountDeploymentData,
-      paymasterData: paymasterData,
-      tip: tip,
-      feeDataAvailabilityMode: feeDataAvailabilityMode,
-      nonceDataAvailabilityMode: nonceDataAvailabilityMode,
+    Felt? contractAddress,
+  }) {
+    return FunctionCall(
+      contractAddress: contractAddress ?? address,
+      entryPointSelector: getSelectorByName(selector),
+      calldata: calldata,
     );
-    return trx;
   }
 }
