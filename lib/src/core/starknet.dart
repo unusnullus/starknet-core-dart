@@ -8,7 +8,6 @@ export 'argent/index.dart';
 export 'contract/index.dart';
 export 'core/index.dart';
 export 'crypto/index.dart';
-export 'devnet/index.dart';
 export 'fee/estimated_transaction_fee.dart';
 export 'signer.dart';
 export 'static_config.dart';
