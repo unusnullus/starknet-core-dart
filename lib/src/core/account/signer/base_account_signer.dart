@@ -28,9 +28,7 @@ abstract class BaseAccountSigner {
     required String feeDataAvailabilityMode,
     required String nonceDataAvailabilityMode,
   }) async {
-    final calldata = functionCallsToCalldata(
-      functionCalls: transactions,
-    );
+    final calldata = functionCallsToCalldata(transactions);
     // Add validation for resourceBounds entries to prevent null exceptions
     if (resourceBounds.isEmpty) {
       throw Exception('Resource bounds must not be empty');

@@ -1,8 +1,8 @@
+import 'package:starknet_core/src/core/contract/index.dart';
 import 'package:starknet_core/src/core/fee/estimated_transaction_fee.dart';
 
 import '../../provider/starknet_provider.dart';
 import '../core/types/index.dart';
-import 'contract.dart';
 
 class ERC20 extends Contract {
   ERC20({required super.account, required super.address});
@@ -61,10 +61,13 @@ class ERC20 extends Contract {
     Felt? tip,
     EstimatedTransactionFee? estimatedFee,
   }) async {
-    final List<FunctionCall> functionCalls = getTransferFunctionCalls(
-      recipientAddress: recipientAddress,
-      amount: amount,
-    );
+    final List<FunctionCall> functionCalls = <FunctionCall>[
+      Erc20TransferCall(
+        contractAddress: address,
+        recipientAddress: recipientAddress,
+        amount: amount,
+      ).toFunctionCall(),
+    ];
 
     estimatedFee ??= await account.estimateFeeForInvokeTx(functionCalls: functionCalls, tip: tip);
 
@@ -90,11 +93,14 @@ class ERC20 extends Contract {
     Felt? tip,
     EstimatedTransactionFee? estimatedFee,
   }) async {
-    final List<FunctionCall> functionCalls = getTransferFromFunctionCalls(
-      fromAddress: fromAddress,
-      toAddress: toAddress,
-      amount: amount,
-    );
+    final List<FunctionCall> functionCalls = <FunctionCall>[
+      Erc20TransferFromCall(
+        contractAddress: address,
+        fromAddress: fromAddress,
+        toAddress: toAddress,
+        amount: amount,
+      ).toFunctionCall(),
+    ];
 
     estimatedFee ??= await account.estimateFeeForInvokeTx(functionCalls: functionCalls, tip: tip);
 
@@ -118,10 +124,13 @@ class ERC20 extends Contract {
     Felt? tip,
     EstimatedTransactionFee? estimatedFee,
   }) async {
-    final List<FunctionCall> functionCalls = getApproveFunctionCalls(
-      spenderAddress: spenderAddress,
-      amount: amount,
-    );
+    final List<FunctionCall> functionCalls = [
+      Erc20ApproveCall(
+        contractAddress: address,
+        spenderAddress: spenderAddress,
+        amount: amount,
+      ).toFunctionCall(),
+    ];
 
     estimatedFee ??= await account.estimateFeeForInvokeTx(functionCalls: functionCalls, tip: tip);
 
@@ -134,33 +143,5 @@ class ERC20 extends Contract {
       result: (result) => result.transaction_hash,
       error: (error) => throw Exception(error.message),
     );
-  }
-
-  List<FunctionCall> getTransferFunctionCalls({
-    required Felt recipientAddress,
-    required Uint256 amount,
-  }) {
-    return [
-      getFunctionCall(selector: 'transfer', calldata: [recipientAddress, amount.low, amount.high]),
-    ];
-  }
-
-  List<FunctionCall> getTransferFromFunctionCalls({
-    required Felt fromAddress,
-    required Felt toAddress,
-    required Uint256 amount,
-  }) {
-    return [
-      getFunctionCall(selector: 'transferFrom', calldata: [fromAddress, toAddress, amount.low, amount.high]),
-    ];
-  }
-
-  List<FunctionCall> getApproveFunctionCalls({
-    required Felt spenderAddress,
-    required Uint256 amount,
-  }) {
-    return [
-      getFunctionCall(selector: 'approve', calldata: [spenderAddress, amount.low, amount.high]),
-    ];
   }
 }

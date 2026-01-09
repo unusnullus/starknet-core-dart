@@ -36,7 +36,11 @@ class Contract {
   /// Call contract given [selector] with [calldata]
   Future<List<Felt>> call(String selector, List<Felt> calldata) async {
     final response = await account.provider.call(
-      request: getFunctionCall(selector: selector, calldata: calldata),
+      request: FunctionCall(
+        contractAddress: address,
+        entryPointSelector: getSelectorByName(selector),
+        calldata: calldata,
+      ),
       blockId: BlockId.latest,
     );
     return response.when(
@@ -55,18 +59,6 @@ class Contract {
       functionCalls: functionCalls,
       tip: tip,
       estimatedFee: estimatedFee,
-    );
-  }
-
-  FunctionCall getFunctionCall({
-    required String selector,
-    required List<Felt> calldata,
-    Felt? contractAddress,
-  }) {
-    return FunctionCall(
-      contractAddress: contractAddress ?? address,
-      entryPointSelector: getSelectorByName(selector),
-      calldata: calldata,
     );
   }
 }

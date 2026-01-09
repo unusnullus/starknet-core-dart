@@ -7,9 +7,9 @@ import 'package:starknet_core/src/provider/starknet_provider.dart';
 import 'account/derivation/account_derivation.dart';
 import 'account/signer/base_account_signer.dart';
 import 'contract/index.dart';
-import 'core/crypto/index.dart' as core;
+import 'core/crypto/index.dart';
 import 'core/types/index.dart';
-import 'crypto/index.dart' as c;
+import 'crypto/index.dart';
 import 'fee/estimated_transaction_fee.dart';
 import 'presets/udc.g.dart';
 import 'static_config.dart';
@@ -103,7 +103,7 @@ class Account {
         signature: signature,
         nonce: nonce,
         accountDeploymentData: accountDeploymentData,
-        calldata: c.functionCallsToCalldata(functionCalls: functionCalls, useLegacyCalldata: false),
+        calldata: functionCallsToCalldata(functionCalls),
         feeDataAvailabilityMode: feeDataAvailabilityMode,
         nonceDataAvailabilityMode: nonceDataAvailabilityMode,
         paymasterData: paymasterData,
@@ -240,7 +240,7 @@ class Account {
         FunctionCall(
           //verify the udcAddress before use this logic
           contractAddress: udcAddress,
-          entryPointSelector: core.getSelectorByName('deployContract'),
+          entryPointSelector: getSelectorByName('deployContract'),
           calldata: params,
         ),
       ],
@@ -314,7 +314,7 @@ class Account {
       InvokeTransactionRequest(
         invokeTransaction: InvokeTransactionV3(
           accountDeploymentData: accountDeploymentData,
-          calldata: c.functionCallsToCalldata(functionCalls: functionCalls, useLegacyCalldata: false),
+          calldata: functionCallsToCalldata(functionCalls),
           feeDataAvailabilityMode: feeDataAvailabilityMode,
           nonce: nonce,
           nonceDataAvailabilityMode: nonceDataAvailabilityMode,
