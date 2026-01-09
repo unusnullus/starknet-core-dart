@@ -1,6 +1,6 @@
 name: starknet_core
 description: Forked versions of the latest starknet and starknet_provider Dart packages.
-version: 1.0.1
+version: 1.0.2
 repository: https://github.com/unusnullus/starknet-core-dart
 
 environment:
