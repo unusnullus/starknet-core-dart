@@ -9,14 +9,18 @@ class ERC20 extends Contract {
 
   /// Returns the name of the token.
   Future<String> name() async {
-    final res = await call("name", []);
+    final res = await call(
+      functionCall: Erc20NameCall(contractAddress: address).toFunctionCall(),
+    );
     final Felt name = res[0];
     return name.toSymbol();
   }
 
   /// Returns the symbol of the token, usually a shorter version of the name.
   Future<String> symbol() async {
-    final res = await call("symbol", []);
+    final res = await call(
+      functionCall: Erc20SymbolCall(contractAddress: address).toFunctionCall(),
+    );
     final Felt symbol = res[0];
     return symbol.toSymbol();
   }
@@ -26,19 +30,28 @@ class ERC20 extends Contract {
   /// For example, if decimals equals 2, a balance of 505 tokens
   /// should be displayed to a user as 5,05 (505 / 10 ** 2).
   Future<Felt> decimals() async {
-    final res = await call("decimals", []);
+    final res = await call(
+      functionCall: Erc20DecimalsCall(contractAddress: address).toFunctionCall(),
+    );
     return res[0];
   }
 
   /// Returns the amount of tokens in existence.
   Future<Uint256> totalSupply() async {
-    final res = await call("totalSupply", []);
+    final res = await call(
+      functionCall: Erc20TotalSupplyCall(contractAddress: address).toFunctionCall(),
+    );
     return Uint256(low: res[0], high: res[1]);
   }
 
-  /// Returns the amount of tokens owned by `account`.
-  Future<Uint256> balanceOf(Felt account) async {
-    final res = await call("balanceOf", [account]);
+  /// Returns the amount of tokens owned by `accountAddress`.
+  Future<Uint256> balanceOf({required Felt accountAddress}) async {
+    final res = await call(
+      functionCall: Erc20BalanceOfCall(
+        contractAddress: address,
+        accountAddress: accountAddress,
+      ).toFunctionCall(),
+    );
     return Uint256(low: res[0], high: res[1]);
   }
 
@@ -47,12 +60,21 @@ class ERC20 extends Contract {
   /// This is zero by default.
   ///
   /// This value changes when approve or transferFrom are called.
-  Future<Uint256> allowance(Felt owner, Felt spender) async {
-    final res = await call("allowance", [owner, spender]);
+  Future<Uint256> allowance({
+    required Felt ownerAddress,
+    required Felt spenderAddress,
+  }) async {
+    final res = await call(
+      functionCall: Erc20AllowanceCall(
+        contractAddress: address,
+        ownerAddress: ownerAddress,
+        spenderAddress: spenderAddress,
+      ).toFunctionCall(),
+    );
     return Uint256(low: res[0], high: res[1]);
   }
 
-  /// Moves `amount` tokens from the caller’s account to `recipient`.
+  /// Moves `amount` tokens from the caller’s account to `recipientAddress`.
   ///
   /// Returns transaction hash.
   Future<String> transfer({
@@ -82,7 +104,7 @@ class ERC20 extends Contract {
     );
   }
 
-  /// Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism.
+  /// Moves `amount` tokens from `fromAddress` to `toAddress` using the allowance mechanism.
   /// amount is then deducted from the caller’s allowance.
   ///
   /// Returns transaction hash.
@@ -115,7 +137,7 @@ class ERC20 extends Contract {
     );
   }
 
-  /// Sets `amount` as the allowance of `spender` over the caller’s tokens.
+  /// Sets `amount` as the allowance of `spenderAddress` over the caller’s tokens.
   ///
   /// Returns transaction hash.
   Future<String> approve({
