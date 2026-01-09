@@ -45,12 +45,9 @@ BigInt calculateTransactionHashCommon({
   return computeHashOnElements(dataToHash);
 }
 
-List<Felt> functionCallsToCalldata({required List<FunctionCall> functionCalls, bool useLegacyCalldata = false}) {
-  if (useLegacyCalldata) {
-    return functionCallsToCalldataLegacy(functionCalls: functionCalls);
-  }
-
+List<Felt> functionCallsToCalldata(List<FunctionCall> functionCalls) {
   List<Felt> calldata = [Felt.fromInt(functionCalls.length)];
+
   for (final call in functionCalls) {
     calldata.addAll([
       call.contractAddress, // to
@@ -61,6 +58,34 @@ List<Felt> functionCallsToCalldata({required List<FunctionCall> functionCalls, b
   }
 
   return calldata;
+}
+
+List<FunctionCall> calldataToFunctionCalls(List<Felt> calldata) {
+  int index = 0;
+
+  final int functionCallsCount = calldata[index++].toInt();
+
+  final List<FunctionCall> functionCalls = <FunctionCall>[];
+
+  for (int i = 0; i < functionCallsCount; i++) {
+    final Felt contractAddress = calldata[index++];
+    final Felt entryPointSelector = calldata[index++];
+
+    final int dataLength = calldata[index++].toInt();
+    final List<Felt> callData = calldata.sublist(index, index + dataLength);
+
+    index += dataLength;
+
+    functionCalls.add(
+      FunctionCall(
+        contractAddress: contractAddress,
+        entryPointSelector: entryPointSelector,
+        calldata: callData,
+      ),
+    );
+  }
+
+  return functionCalls;
 }
 
 // Legacy version for cairo 0
