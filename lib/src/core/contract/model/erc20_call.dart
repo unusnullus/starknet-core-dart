@@ -1,7 +1,7 @@
 import '../../../provider/model/function_call.dart';
 import '../../core/index.dart';
 
-abstract class Erc20CallSelectorNames {
+abstract class Erc20CallSelectorName {
   static const String transfer = 'transfer';
   static const String transferFrom = 'transferFrom';
   static const String approve = 'approve';
@@ -18,15 +18,15 @@ typedef CreateErc20CallByFunctionCall = Erc20Call Function(FunctionCall);
 abstract class Erc20CallFactory {
   static final Map<Felt, CreateErc20CallByFunctionCall> _selectorToCreateCallByFunctionCall =
       <Felt, CreateErc20CallByFunctionCall>{
-        _getSelectorByName(Erc20CallSelectorNames.transfer): Erc20TransferCall.fromFunctionCall,
-        _getSelectorByName(Erc20CallSelectorNames.transferFrom): Erc20TransferFromCall.fromFunctionCall,
-        _getSelectorByName(Erc20CallSelectorNames.approve): Erc20ApproveCall.fromFunctionCall,
-        _getSelectorByName(Erc20CallSelectorNames.name): Erc20NameCall.fromFunctionCall,
-        _getSelectorByName(Erc20CallSelectorNames.symbol): Erc20SymbolCall.fromFunctionCall,
-        _getSelectorByName(Erc20CallSelectorNames.decimals): Erc20DecimalsCall.fromFunctionCall,
-        _getSelectorByName(Erc20CallSelectorNames.totalSupply): Erc20TotalSupplyCall.fromFunctionCall,
-        _getSelectorByName(Erc20CallSelectorNames.balanceOf): Erc20BalanceOfCall.fromFunctionCall,
-        _getSelectorByName(Erc20CallSelectorNames.allowance): Erc20AllowanceCall.fromFunctionCall,
+        _getSelectorByName(Erc20CallSelectorName.transfer): Erc20TransferCall.fromFunctionCall,
+        _getSelectorByName(Erc20CallSelectorName.transferFrom): Erc20TransferFromCall.fromFunctionCall,
+        _getSelectorByName(Erc20CallSelectorName.approve): Erc20ApproveCall.fromFunctionCall,
+        _getSelectorByName(Erc20CallSelectorName.name): Erc20NameCall.fromFunctionCall,
+        _getSelectorByName(Erc20CallSelectorName.symbol): Erc20SymbolCall.fromFunctionCall,
+        _getSelectorByName(Erc20CallSelectorName.decimals): Erc20DecimalsCall.fromFunctionCall,
+        _getSelectorByName(Erc20CallSelectorName.totalSupply): Erc20TotalSupplyCall.fromFunctionCall,
+        _getSelectorByName(Erc20CallSelectorName.balanceOf): Erc20BalanceOfCall.fromFunctionCall,
+        _getSelectorByName(Erc20CallSelectorName.allowance): Erc20AllowanceCall.fromFunctionCall,
       };
 
   static Felt _getSelectorByName(String name) => getSelectorByName(name);
@@ -59,7 +59,7 @@ sealed class Erc20Call {
 }
 
 class Erc20NameCall extends Erc20Call {
-  Erc20NameCall({required super.contractAddress}) : super(selectorName: Erc20CallSelectorNames.name);
+  Erc20NameCall({required super.contractAddress}) : super(selectorName: Erc20CallSelectorName.name);
 
   factory Erc20NameCall.fromFunctionCall(FunctionCall functionCall) {
     return Erc20NameCall(contractAddress: functionCall.contractAddress);
@@ -67,7 +67,7 @@ class Erc20NameCall extends Erc20Call {
 }
 
 class Erc20SymbolCall extends Erc20Call {
-  Erc20SymbolCall({required super.contractAddress}) : super(selectorName: Erc20CallSelectorNames.symbol);
+  Erc20SymbolCall({required super.contractAddress}) : super(selectorName: Erc20CallSelectorName.symbol);
 
   factory Erc20SymbolCall.fromFunctionCall(FunctionCall functionCall) {
     return Erc20SymbolCall(contractAddress: functionCall.contractAddress);
@@ -75,7 +75,7 @@ class Erc20SymbolCall extends Erc20Call {
 }
 
 class Erc20DecimalsCall extends Erc20Call {
-  Erc20DecimalsCall({required super.contractAddress}) : super(selectorName: Erc20CallSelectorNames.decimals);
+  Erc20DecimalsCall({required super.contractAddress}) : super(selectorName: Erc20CallSelectorName.decimals);
 
   factory Erc20DecimalsCall.fromFunctionCall(FunctionCall functionCall) {
     return Erc20DecimalsCall(contractAddress: functionCall.contractAddress);
@@ -83,7 +83,7 @@ class Erc20DecimalsCall extends Erc20Call {
 }
 
 class Erc20TotalSupplyCall extends Erc20Call {
-  Erc20TotalSupplyCall({required super.contractAddress}) : super(selectorName: Erc20CallSelectorNames.totalSupply);
+  Erc20TotalSupplyCall({required super.contractAddress}) : super(selectorName: Erc20CallSelectorName.totalSupply);
 
   factory Erc20TotalSupplyCall.fromFunctionCall(FunctionCall functionCall) {
     return Erc20TotalSupplyCall(contractAddress: functionCall.contractAddress);
@@ -96,7 +96,7 @@ class Erc20BalanceOfCall extends Erc20Call {
   Erc20BalanceOfCall({
     required super.contractAddress,
     required this.accountAddress,
-  }) : super(selectorName: Erc20CallSelectorNames.balanceOf);
+  }) : super(selectorName: Erc20CallSelectorName.balanceOf);
 
   factory Erc20BalanceOfCall.fromFunctionCall(FunctionCall functionCall) {
     return Erc20BalanceOfCall(
@@ -104,6 +104,9 @@ class Erc20BalanceOfCall extends Erc20Call {
       accountAddress: functionCall.calldata[0],
     );
   }
+
+  @override
+  List<Felt> get calldata => <Felt>[accountAddress];
 }
 
 class Erc20AllowanceCall extends Erc20Call {
@@ -114,7 +117,7 @@ class Erc20AllowanceCall extends Erc20Call {
     required super.contractAddress,
     required this.ownerAddress,
     required this.spenderAddress,
-  }) : super(selectorName: Erc20CallSelectorNames.allowance);
+  }) : super(selectorName: Erc20CallSelectorName.allowance);
 
   factory Erc20AllowanceCall.fromFunctionCall(FunctionCall functionCall) {
     return Erc20AllowanceCall(
@@ -136,7 +139,7 @@ class Erc20TransferCall extends Erc20Call {
     required super.contractAddress,
     required this.recipientAddress,
     required this.amount,
-  }) : super(selectorName: Erc20CallSelectorNames.transfer);
+  }) : super(selectorName: Erc20CallSelectorName.transfer);
 
   factory Erc20TransferCall.fromFunctionCall(FunctionCall functionCall) {
     return Erc20TransferCall(
@@ -163,7 +166,7 @@ class Erc20TransferFromCall extends Erc20Call {
     required this.fromAddress,
     required this.toAddress,
     required this.amount,
-  }) : super(selectorName: Erc20CallSelectorNames.transferFrom);
+  }) : super(selectorName: Erc20CallSelectorName.transferFrom);
 
   factory Erc20TransferFromCall.fromFunctionCall(FunctionCall functionCall) {
     return Erc20TransferFromCall(
@@ -189,7 +192,7 @@ class Erc20ApproveCall extends Erc20Call {
     required super.contractAddress,
     required this.spenderAddress,
     required this.amount,
-  }) : super(selectorName: Erc20CallSelectorNames.approve);
+  }) : super(selectorName: Erc20CallSelectorName.approve);
 
   factory Erc20ApproveCall.fromFunctionCall(FunctionCall functionCall) {
     return Erc20ApproveCall(
