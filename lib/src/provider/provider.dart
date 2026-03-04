@@ -11,16 +11,16 @@ abstract class Provider implements ReadProvider {
 }
 
 class JsonRpcProvider extends JsonRpcReadProvider implements Provider {
-  const JsonRpcProvider({
+  JsonRpcProvider({
     required super.nodeUri,
+    super.headers,
   });
-
-  execute(List<Call> calls) async {}
 
   @override
   Future<InvokeTransactionResponse> addInvokeTransaction(InvokeTransactionRequest request) async {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: headers,
       method: 'starknet_addInvokeTransaction',
       params: request,
     ).then(InvokeTransactionResponse.fromJson);
@@ -30,6 +30,7 @@ class JsonRpcProvider extends JsonRpcReadProvider implements Provider {
   Future<DeclareTransactionResponse> addDeclareTransaction(DeclareTransactionRequest request) async {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: headers,
       method: 'starknet_addDeclareTransaction',
       params: request,
     ).then(DeclareTransactionResponse.fromJson);
@@ -39,6 +40,7 @@ class JsonRpcProvider extends JsonRpcReadProvider implements Provider {
   Future<DeployAccountTransactionResponse> addDeployAccountTransaction(DeployAccountTransactionRequest request) async {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: headers,
       method: 'starknet_addDeployAccountTransaction',
       params: request,
     ).then(DeployAccountTransactionResponse.fromJson);
