@@ -19,6 +19,12 @@ Future<Map<String, dynamic>> callRpcEndpoint({
     'id': 0,
   };
 
+  //TODO remove
+  log('request url: ${nodeUri.toString()}');
+  log('request body: ${body}');
+  log('request headers: ${headers}');
+
+
   final response = await http
       .post(
         nodeUri,
