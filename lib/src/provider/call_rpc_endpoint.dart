@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 
@@ -18,11 +19,17 @@ Future<Map<String, dynamic>> callRpcEndpoint({
     'id': 0,
   };
 
-  final response = await http.post(
-    nodeUri,
-    headers: headers,
-    body: PythonicJsonEncoder(sortSymbol: false).convert(body),
-  );
+  final response = await http
+      .post(
+        nodeUri,
+        headers: headers,
+        body: PythonicJsonEncoder(sortSymbol: false).convert(body),
+      )
+      .timeout(const Duration(seconds: 15));
+
+  //TODO remove
+  log('response status code: ${response.statusCode}');
+  log('response body: ${response.body}');
 
   Map<String, dynamic>? decodedResponseBody;
   try {
