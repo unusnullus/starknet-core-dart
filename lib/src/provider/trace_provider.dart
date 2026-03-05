@@ -22,14 +22,26 @@ abstract class TraceProvider {
 class JsonRpcTraceProvider implements TraceProvider {
   final Uri nodeUri;
 
-  const JsonRpcTraceProvider({
+  Map<String, String> _headers;
+
+  static const Map<String, String> defaultHeaders = <String, String>{
+    'Content-Type': 'application/json',
+  };
+
+  JsonRpcTraceProvider({
     required this.nodeUri,
-  });
+    Map<String, String>? headers,
+  }) : _headers = headers ?? defaultHeaders;
+
+  Map<String, String> get headers => _headers;
+
+  void updateHeaders(Map<String, String> headers) => _headers = headers;
 
   @override
   Future<GetTransactionTrace> traceTransaction(Felt transactionHash) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_traceTransaction',
       params: [transactionHash],
     ).then(GetTransactionTrace.fromJson);
@@ -39,6 +51,7 @@ class JsonRpcTraceProvider implements TraceProvider {
   Future<SimulateTransactions> simulateTransactions(SimulateTransactionsRequest request) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_simulateTransactions',
       params: [request],
     ).then(SimulateTransactions.fromJson);
@@ -48,6 +61,7 @@ class JsonRpcTraceProvider implements TraceProvider {
   Future<GetBlockTransactionTraces> traceBlockTransactions(BlockId blockId) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_traceBlockTransactions',
       params: [blockId],
     ).then(GetBlockTransactionTraces.fromJson);

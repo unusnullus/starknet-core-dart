@@ -158,25 +158,44 @@ abstract class ReadProvider {
 
 class JsonRpcReadProvider implements ReadProvider {
   final Uri nodeUri;
+  Map<String, String> _headers;
 
-  const JsonRpcReadProvider({
+  static const Map<String, String> defaultHeaders = <String, String>{
+    'Content-Type': 'application/json',
+  };
+
+  JsonRpcReadProvider({
     required this.nodeUri,
-  });
+    Map<String, String>? headers,
+  }) : _headers = headers ?? defaultHeaders;
+
+  Map<String, String> get headers => _headers;
+
+  void updateHeaders(Map<String, String> headers) => _headers = headers;
 
   @override
   Future<BlockNumber> blockNumber() async {
-    return callRpcEndpoint(nodeUri: nodeUri, method: 'starknet_blockNumber').then(BlockNumber.fromJson);
+    return callRpcEndpoint(
+      nodeUri: nodeUri,
+      headers: _headers,
+      method: 'starknet_blockNumber',
+    ).then(BlockNumber.fromJson);
   }
 
   @override
   Future<BlockHashAndNumber> blockHashAndNumber() async {
-    return callRpcEndpoint(nodeUri: nodeUri, method: 'starknet_blockHashAndNumber').then(BlockHashAndNumber.fromJson);
+    return callRpcEndpoint(
+      nodeUri: nodeUri,
+      headers: _headers,
+      method: 'starknet_blockHashAndNumber',
+    ).then(BlockHashAndNumber.fromJson);
   }
 
   @override
   Future<GetBlockWithTxHashes> getBlockWithTxHashes(BlockId blockId) async {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getBlockWithTxHashes',
       params: [blockId],
     ).then(GetBlockWithTxHashes.fromJson);
@@ -186,6 +205,7 @@ class JsonRpcReadProvider implements ReadProvider {
   Future<GetBlockWithTxs> getBlockWithTxs(BlockId blockId) async {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getBlockWithTxs',
       params: [blockId],
     ).then(GetBlockWithTxs.fromJson);
@@ -195,6 +215,7 @@ class JsonRpcReadProvider implements ReadProvider {
   Future<GetBlockTxnCount> getBlockTxnCount(BlockId blockId) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getBlockTransactionCount',
       params: [blockId],
     ).then(GetBlockTxnCount.fromJson);
@@ -205,7 +226,12 @@ class JsonRpcReadProvider implements ReadProvider {
     required FunctionCall request,
     required BlockId blockId,
   }) async {
-    return callRpcEndpoint(nodeUri: nodeUri, method: 'starknet_call', params: [request, blockId]).then(Call.fromJson);
+    return callRpcEndpoint(
+      nodeUri: nodeUri,
+      headers: _headers,
+      method: 'starknet_call',
+      params: [request, blockId],
+    ).then(Call.fromJson);
   }
 
   @override
@@ -216,6 +242,7 @@ class JsonRpcReadProvider implements ReadProvider {
   }) async {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getStorageAt',
       params: [contractAddress, key, blockId],
     ).then(GetStorage.fromJson);
@@ -225,6 +252,7 @@ class JsonRpcReadProvider implements ReadProvider {
   Future<GetTransaction> getTransactionByHash(Felt transactionHash) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getTransactionByHash',
       params: [transactionHash],
     ).then(GetTransaction.fromJson);
@@ -234,6 +262,7 @@ class JsonRpcReadProvider implements ReadProvider {
   Future<GetTransaction> getTransactionByBlockIdAndIndex(BlockId blockId, int index) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getTransactionByBlockIdAndIndex',
       params: [blockId, index],
     ).then(GetTransaction.fromJson);
@@ -243,6 +272,7 @@ class JsonRpcReadProvider implements ReadProvider {
   Future<GetTransactionReceipt> getTransactionReceipt(Felt transactionHash) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getTransactionReceipt',
       params: [transactionHash],
     ).then(GetTransactionReceipt.fromJson);
@@ -252,8 +282,8 @@ class JsonRpcReadProvider implements ReadProvider {
   Future<ChainId> chainId() {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_chainId',
-      params: [],
     ).then(ChainId.fromJson);
   }
 
@@ -261,8 +291,8 @@ class JsonRpcReadProvider implements ReadProvider {
   Future<PendingTransactions> pendingTransactions() {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_pendingTransactions',
-      params: [],
     ).then(PendingTransactions.fromJson);
   }
 
@@ -270,8 +300,8 @@ class JsonRpcReadProvider implements ReadProvider {
   Future<Syncing> syncing() {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_syncing',
-      params: [],
     ).then(Syncing.fromJson);
   }
 
@@ -282,6 +312,7 @@ class JsonRpcReadProvider implements ReadProvider {
   }) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getNonce',
       params: [blockId, contractAddress],
     ).then(GetNonce.fromJson);
@@ -291,6 +322,7 @@ class JsonRpcReadProvider implements ReadProvider {
   Future<GetStateUpdate> getStateUpdate(BlockId blockId) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getStateUpdate',
       params: [blockId],
     ).then(GetStateUpdate.fromJson);
@@ -303,6 +335,7 @@ class JsonRpcReadProvider implements ReadProvider {
   }) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getClassHashAt',
       params: [blockId, contractAddress],
     ).then(GetClassHashAt.fromJson);
@@ -315,6 +348,7 @@ class JsonRpcReadProvider implements ReadProvider {
   }) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getClass',
       params: [blockId, classHash],
     ).then(GetClass.fromJson);
@@ -327,6 +361,7 @@ class JsonRpcReadProvider implements ReadProvider {
   }) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getClassAt',
       params: [blockId, contractAddress],
     ).then(GetClass.fromJson);
@@ -336,25 +371,27 @@ class JsonRpcReadProvider implements ReadProvider {
   Future<GetEvents> getEvents(GetEventsRequest request) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getEvents',
       params: [request],
     ).then(GetEvents.fromJson);
   }
 
   @override
-  Future<EstimateFee> estimateFee(EstimateFeeRequest request) async {
-    final payload = await callRpcEndpoint(
+  Future<EstimateFee> estimateFee(EstimateFeeRequest request) {
+    return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_estimateFee',
       params: request,
-    );
-    return EstimateFee.fromJson(payload);
+    ).then(EstimateFee.fromJson);
   }
 
   @override
   Future<EstimateMessageFee> estimateMessageFee(EstimateMessageFeeRequest request) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_estimateMessageFee',
       params: request,
     ).then(EstimateMessageFee.fromJson);
@@ -364,6 +401,7 @@ class JsonRpcReadProvider implements ReadProvider {
   Future<GetMessagesStatus> getMessagesStatus(GetMessagesStatusRequest request) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getMessagesStatus',
       params: request,
     ).then(GetMessagesStatus.fromJson);
@@ -373,37 +411,38 @@ class JsonRpcReadProvider implements ReadProvider {
   Future<GetStorageProof> getStorageProof(GetStorageProofRequest request) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getStorageProof',
       params: request,
     ).then(GetStorageProof.fromJson);
   }
 
   @override
-  Future<BlockWithReceipts> getBlockWithReceipts(BlockId blockId) async {
+  Future<BlockWithReceipts> getBlockWithReceipts(BlockId blockId) {
     return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getBlockWithReceipts',
       params: [blockId],
     ).then(BlockWithReceipts.fromJson);
   }
 
   @override
-  Future<SpecVersion> specVersion() async {
-    final response = await callRpcEndpoint(
+  Future<SpecVersion> specVersion() {
+    return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_specVersion',
-      params: [],
-    );
-    return SpecVersion.fromJson(response);
+    ).then(SpecVersion.fromJson);
   }
 
   @override
-  Future<GetTransactionStatus> getTransactionStatus(Felt transactionHash) async {
-    final response = await callRpcEndpoint(
+  Future<GetTransactionStatus> getTransactionStatus(Felt transactionHash) {
+    return callRpcEndpoint(
       nodeUri: nodeUri,
+      headers: _headers,
       method: 'starknet_getTransactionStatus',
       params: [transactionHash],
-    );
-    return GetTransactionStatus.fromJson(response);
+    ).then(GetTransactionStatus.fromJson);
   }
 }
